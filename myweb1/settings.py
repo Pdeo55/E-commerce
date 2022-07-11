@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-&i6k6_q)yr2&qft##b+q^x--#73f$@ds4i8r5_v=*0i&=d%p$&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1','flip-zone.herokuapp.com']
 
 
 # Application definition
