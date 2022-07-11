@@ -1,0 +1,135 @@
+{% extends 'shopping/basic.html' %}
+{% block body %}
+<!--<ul>
+{%for i in final_address%}
+<li>{{i.firstname}} {{i.lastname}}</li>
+<li>{{i.address}}, {{i.address2}}</li>
+<li>{{i.firstname}}</li>
+  
+ {% endfor %}
+</ul>-->
+<div class="container">
+  <div class="row" >
+	 <br>
+            <div class="col-md-12" >
+              <div class="col-md-4 col-sm-6 col-xs-12 col-md-push-6 col-sm-push-6" style="left: 375px; margin-top: 90px;">
+                <!--REVIEW ORDER-->
+                <div class="panel panel-default" >
+                  <div class="panel-heading text-center">
+                    <h4>Review Order</h4>
+                  </div>
+                  <hr><hr>
+                  <div class="panel-body">
+                    <ul class="list-group mb-3" id='items'></ul>
+                    <li class="list-group-item d-flex justify-content-between">Total Price<strong>Rs.<span id="totalprice"></span></strong></li>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="rzp-button1">click here to Pay</button>  
+                  </div>
+                        
+                </div>
+                    <!--REVIEW ORDER END-->
+                
+              </div>
+            </div>
+  </div>
+</div>
+ 
+ 
+
+
+{% endblock%}
+ 
+ 
+ 
+ {% block js%}
+<script>
+  // Find out the cart items from localStorage
+  if (localStorage.getItem('cart') == null) {
+    var cart = {};
+  } else {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    document.getElementById('cart').innerHTML = Object.keys(cart).length;
+
+  }
+  console.log(cart);
+  var sum = 0;
+  var totalprice=0;
+  var per_totalprice=0;
+  if ($.isEmptyObject(cart)) {
+    // If object is empty
+    mystr = "<p>Your cart is empty, please add some items before checking out ! </p>"
+    $('#items').append(mystr);
+  }
+  for (item in cart) {
+
+    let name = cart[item][1];
+    let qty = cart[item][0];
+    let itemprice = cart[item][2];
+
+    per_totalprice = itemprice *qty;
+    sum = sum + qty;
+    totalprice = totalprice + qty*itemprice;
+    
+     mystr = `  <li class="list-group-item d-flex justify-content-between lh-condensed">
+      
+              <div>
+                <h6 class="my-0">${name}</h6>
+                <small class="text-muted">Brief description</small>
+              </div>
+              <span class="text-muted">(${qty}) Rs.${per_totalprice} </span>
+            </li>`
+    $('#items').append(mystr);
+  }
+  document.getElementById('cart').innerHTML = sum;
+  document.getElementById('totalprice').innerHTML = totalprice;
+  $('#itemsJson').val(JSON.stringify(cart));
+
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+ var total= totalprice*100;
+var options = {
+    "key": "rzp_test_NHphcLQwPltWO4", // Enter the Key ID generated from the Dashboard
+    "amount": `${total}`, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Flip-zone",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": "{{id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature);
+        alert("Your Payment has been done successfully,!!!Thank you!!!")
+        document.location = "/shopping";
+        
+    },
+    
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+  localStorage.clear();
+  
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+
+ 
+</script>
+
+
+{% endblock%}
